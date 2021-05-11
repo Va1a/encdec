@@ -1,5 +1,7 @@
 from cryptography.fernet import Fernet
 import os
+from halo import Halo
+spinner = Halo(text='Initializing...', spinner='dots')
 
 print('encdecpy easy directory encryption/decryption!')
 
@@ -30,12 +32,14 @@ if not os.path.exists(folder):
 	exit()
 
 def encrypt(file):
+	spinner.text = f'Encrypting {file} ...'
 	with open(file, 'rb') as working_file:
 		encrypted = f.encrypt(working_file.read())
 	with open(file, 'wb') as working_file:
 		working_file.write(encrypted)
 
 def decrypt(file):
+	spinner.text = f'Decrypting {file} ...'
 	with open(file, 'rb') as working_file:
 		decrypted = f.decrypt(working_file.read())
 	with open(file, 'wb') as working_file:
@@ -53,7 +57,10 @@ def traverse(folder: str, op: bool):
 
 dirqueue = [folder]
 
+spinner.start()
 while dirqueue:
 	for folder in dirqueue:
 		dirqueue.extend(traverse(folder, op))
 		dirqueue.remove(folder)
+
+spinner.succeed(f'Done! Fully {"encrypt" if op else "decrypt"}ed...')
