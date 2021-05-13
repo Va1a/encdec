@@ -1,5 +1,5 @@
 # encdec
-Quickly encrypt and decrypt files using Fernet symmetric encryption.
+Quickly encrypt and decrypt files using Fernet symmetric encryption. Written in Python.
 
 ## Usage
 Run the program using `python3 encdec.py`
