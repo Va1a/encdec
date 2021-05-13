@@ -1,47 +1,56 @@
 from cryptography.fernet import Fernet
 import os
+
 from halo import Halo
+from colorama import Fore, init
+
 spinner = Halo(text='Initializing...', spinner='dots')
+init(autoreset=True)
 
-print('encdecpy easy directory encryption/decryption!')
+print(Fore.BLUE+'encdec fernet symmetric encryption')
 
-op = input('\nEncrypt or Decrypt? ')
+op = input('\nEncrypt or Decrypt? '+Fore.CYAN)
 op = True if op.lower() == 'encrypt' else False
 
-print(f'Mode: {"Encrypt" if op else "Decrypt"}...')
+print(f'{Fore.MAGENTA}Mode: {"Encrypt" if op else "Decrypt"}...')
 if op:
 	key = Fernet.generate_key()
-	print('\nUsing secret key (SAVE THIS KEY IN A SAFE PLACE): '+key.decode('utf-8'))
+	print('\nUsing secret key (SAVE THIS KEY IN A SAFE PLACE): '+Fore.YELLOW+key.decode('utf-8'))
 else:
-	key = input('\nSecret Key: ').encode('utf-8')
+	print(Fore.RED+'\n[!] Providing an invalid key may result in data corruption.')
+	key = input('Secret Key: '+Fore.YELLOW).encode('utf-8')
 
 try:
 	f = Fernet(key)
 except:
-	print('Invalid key! Provide a valid Fernet 32 byte key.')
+	print(Fore.RED+'Invalid key! Provide a valid Fernet 32 byte key.')
 	exit()
 
 if op: 
-	print('\nWARNING! Once you encrypt this directory, all of its contents will be INACCESSIBLE UNLESS YOU HAVE THE KEY!')
+	print(Fore.RED+'\n[!] Once you encrypt this directory, all of its contents will be INACCESSIBLE UNLESS YOU HAVE THE KEY!')
 else:
-	print('\nWARNING! Decrypting an unencrypted directory will cause file corruption!')
-folder = input(f'Directory to {"encrypt" if op else "decrypt"} (all files and subfolders in this directory will be {"encrypt" if op else "decrypt"}ed): ')
+	print(Fore.RED+'\n[!] Decrypting an unencrypted directory will cause file corruption!')
+folder = input(f'Directory to {"encrypt" if op else "decrypt"} (all files and subfolders in this directory will be {"encrypt" if op else "decrypt"}ed): {Fore.CYAN}')
 
 if not os.path.exists(folder):
-	print('Invalid path provided.')
+	print(Fore.RED+'Invalid path provided.')
 	exit()
 
 def encrypt(file):
-	spinner.text = f'Encrypting {file} ...'
+	spinner.text = f'{Fore.MAGENTA}Encrypting {Fore.WHITE}{file} ...'
 	with open(file, 'rb') as working_file:
 		encrypted = f.encrypt(working_file.read())
 	with open(file, 'wb') as working_file:
 		working_file.write(encrypted)
 
 def decrypt(file):
-	spinner.text = f'Decrypting {file} ...'
+	spinner.text = f'{Fore.MAGENTA}Decrypting {Fore.WHITE}{file} ...'
 	with open(file, 'rb') as working_file:
-		decrypted = f.decrypt(working_file.read())
+		try:
+			decrypted = f.decrypt(working_file.read())
+		except:
+			spinner.fail(Fore.RED+'Invalid decryption key!')
+			exit()
 	with open(file, 'wb') as working_file:
 		working_file.write(decrypted)
 
@@ -63,4 +72,4 @@ while dirqueue:
 		dirqueue.extend(traverse(folder, op))
 		dirqueue.remove(folder)
 
-spinner.succeed(f'Done! Fully {"encrypt" if op else "decrypt"}ed...')
+spinner.succeed(f'{Fore.GREEN}Done! Fully {"encrypt" if op else "decrypt"}ed...')
